@@ -188,6 +188,8 @@ Once done, install the cluster:
 kubectl apply -f src_cluster.yaml
 ```
 
+Monitor the logs for any potential issues and the pods being deployed. Wait until all the `cb-src-000x` pods are ready and running!
+
 ### K8s port forwarding
 We do everyting on the console, but it'd be nice to actually see what's going on, right?
 
