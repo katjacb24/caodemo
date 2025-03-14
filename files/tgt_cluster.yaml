@@ -5,7 +5,7 @@ metadata:
 type: Opaque
 data:
   username: QWRtaW5pc3RyYXRvcg== # Administrator
-  password: <PASSWORD>
+  password: <base64 encrypted password>
 ---
 apiVersion: couchbase.com/v2
 kind: CouchbaseCluster
@@ -35,7 +35,7 @@ spec:
     fsGroup: 1000
   platform: azure
   cluster:
-    clusterName: HirschSource
+    clusterName: TargetCluster
     dataServiceMemoryQuota: 2Gi
     #indexServiceMemoryQuota: 256Mi
     #searchServiceMemoryQuota: 256Mi
