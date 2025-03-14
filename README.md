@@ -52,7 +52,8 @@ As `cb-src` is going to use an encrypted connection to `cb-tgt`, we'll need to s
 
 Download EasyRSA:
 ```
-git clone https://github.com/OpenVPN/easy-rsa` and change the directory `cd easy-rsa/easyrsa3
+git clone https://github.com/OpenVPN/easy-rsa
+cd easy-rsa/easyrsa3
 ```
 
 Initialize and create the CA certificate/key. 
