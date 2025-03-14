@@ -111,7 +111,7 @@ kubectl create secret generic couchbase-operator-tls --from-file pki/issued/Admi
 ### Install CAO
 The installation is very simple, download the package, unpack it and change to its directory.
 
-It's a good idea to copy the yaml files from this repository to the cao direcory.
+Copy the yaml files from this repository to the cao direcory.
 
 ### Install Custom Resource Definitions
 ```
@@ -143,13 +143,24 @@ This will be needed only if you use AKS.
 ```
 kubectl create -f az_storage.yaml
 ```
+## Target cluster
+### Installation
+Please open and review the `tgt_cluster.yaml` file.
+
+The part with the `volumeClaimTemplates` is describing AKS related setup, please feel free to change accordingly.
+
+Change the password (look for a default in the cluster config shipped within the CAO package) and optionally change the server size settings.
+
+Once done, install the cluster:
+```
+kubectl apply -f tgt_cluster.yaml
+```
+
+Monitor logs window and wait until the cluster is ready.
 
 ## Source cluster: autoscale
-I assume you've copied this repository's yaml files to the cao directory.
 ### Installation
 Please open and review `src_cluster.yaml`.
-
-Note, XDCR related part is disabled, we'll enable it later.
 
 The part with the `volumeClaimTemplates` is describing AKS related setup, please feel free to change accordingly.
 
@@ -207,6 +218,8 @@ kubectl apply -f pillowfight.yaml
 
 Now go to the logs window and see how the operator is scaling up the cluster.
 
+In the UI go to the source cluster's XDCR section and monitor the ongoing replication.
+
 Once the new pod has joined the cluster and the rebalance has finished, it's safe to stop the workload - we should know by now that the autoscaling works.
 
 Stop the stress job with
@@ -218,29 +231,6 @@ kubectl delete job pillowfight
 If you'd like to verify that the scale in works too, open `autoscaler.yaml`, change `averageUtilization` to `80`, save the file and `kubectl apply -f autoscaler.yaml`.
 
 After short period of time the HPA will scale in.
-
-## Target cluster: XDCR
-### Installation
-Please open and review the `tgt_cluster.yaml` file.
-
-The part with the `volumeClaimTemplates` is describing AKS related setup, please feel free to change accordingly.
-
-Change the password (look for a default in the cluster config shipped within the CAO package) and optionally change the server size settings.
-
-Once done, install the cluster:
-```
-kubectl apply -f tgt_cluster.yaml
-```
-
-Monitor logs window and wait until the cluster is ready.
-
-### Setting up XDCR
-Open `src_cluster.yaml` file and uncomment the XDCR related parts. Save the file and apply the config:
-```
-kubectl apply -f src_cluster.yaml
-```
-
-In the UI go to the source cluster's XDCR section and monitor the ongoing replication.
 
 ## Optional cleanup
 Please remove all the not needed instances and clusters on the cloud!
