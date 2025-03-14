@@ -71,7 +71,7 @@ spec:
 apiVersion: couchbase.com/v2
 kind: CouchbaseBucket
 metadata:
-  name: tgt
+  name: mydb
   labels:
     cluster: cb-tgt
 spec:
