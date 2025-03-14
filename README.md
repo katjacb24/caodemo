@@ -175,13 +175,20 @@ watch "kubectl get pods"
 ```
 You should see cluster pods being deployed, wait until all of them are ready `1/1` and `Running`.
 
-## Source cluster: autoscale
+## Source cluster
 ### Installation
 Please open and review `src_cluster.yaml`.
 
 The part with the `volumeClaimTemplates` is describing AKS related setup, please feel free to change accordingly.
 
 Change the password (look for a default in the cluster config shipped within the CAO package) and optionally change the server size settings.
+
+For the XDCR setup, we need the target cluster's UUID:
+```
+kubectl get couchbasecluster cb-tgt -o yaml| grep clusterId
+```
+
+Copy the value and change the `uuid` value under `spec - xdcr` accordingly.
 
 Once done, install the cluster:
 ```
