@@ -243,3 +243,10 @@ In the UI go to the source cluster's XDCR section and monitor the ongoing replic
 
 ## Optional cleanup
 Please remove all the not needed instances and clusters on the cloud!
+
+I'm going to delete my AKS cluster:
+```
+az aks delete --name <K8sClusterName> --resource-group <ResourceGroupName>
+```
+
+Have fun!
