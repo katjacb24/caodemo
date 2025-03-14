@@ -183,19 +183,26 @@ The part with the `volumeClaimTemplates` is describing AKS related setup, please
 
 Change the password (look for a default in the cluster config shipped within the CAO package) and optionally change the server size settings.
 
+Install the cluster:
+```
+kubectl apply -f src_cluster.yaml
+```
+Monitor the logs for any potential issues and the pods being deployed. Wait until all the `cb-src-000x` pods are ready and running!
+
+### XDCR Setup
+Uncomment all the related XDCR parts of the config.
+
 For the XDCR setup, we need the target cluster's UUID:
 ```
-kubectl get couchbasecluster cb-tgt -o yaml| grep clusterId
+kubectl get couchbasecluster cb-tgt -o yaml | grep clusterId
 ```
 
 Copy the value and change the `uuid` value under `spec - xdcr` accordingly.
 
-Once done, install the cluster:
+Once done, re-apply the config:
 ```
 kubectl apply -f src_cluster.yaml
 ```
-
-Monitor the logs for any potential issues and the pods being deployed. Wait until all the `cb-src-000x` pods are ready and running!
 
 ### K8s port forwarding
 We do everyting on the console, but it'd be nice to actually see what's going on, right?
