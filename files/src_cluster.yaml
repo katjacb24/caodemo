@@ -1,0 +1,95 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cb-src-auth
+type: Opaque
+data:
+  username: QWRtaW5pc3RyYXRvcg== # Administrator
+  password: <base64 encrypted password>
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseCluster
+metadata:
+  name: cb-src
+spec:
+  #xdcr:
+  #  managed: true
+  #  remoteClusters:
+  #  - name: cb-tgt
+  #    uuid: <cb-tgt cluster uuid>
+  #    hostname: couchbases://cb-tgt.default?network=default
+  #    authenticationSecret: cb-tgt-auth
+  #    tls:
+  #      secret: couchbase-server-xdcr
+  #    replications:
+  #      selector:
+  #        matchLabels:
+  #          replication: from-my-cluster-to-remote-cluster
+  image: couchbase/server:7.6.5
+  antiAffinity: false
+  autoResourceAllocation:
+    cpuLimits: 2
+    cpuRequests: 1
+    enabled: true
+    overheadPercent: 25
+  security:
+    adminSecret: cb-src-auth
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  platform: azure
+  cluster:
+    clusterName: HirschSource
+    dataServiceMemoryQuota: 2Gi
+    #indexServiceMemoryQuota: 256Mi
+    #searchServiceMemoryQuota: 256Mi
+    #eventingServiceMemoryQuota: 256Mi
+    #analyticsServiceMemoryQuota: 1Gi
+    autoFailoverTimeout: 120s
+    autoFailoverMaxCount: 3
+    autoFailoverOnDataDiskIssues: true
+    autoFailoverOnDataDiskIssuesTimePeriod: 120s
+    autoFailoverServerGroup: false
+    indexer:
+      storageMode: plasma
+  buckets:
+    managed: true
+  servers:
+  - size: 3
+    autoscaleEnabled: true
+    name: data
+    services:
+    - data
+    volumeMounts:
+      default: couchbase
+      data:  couchbase
+  volumeClaimTemplates:
+    - metadata:
+        name: couchbase
+      spec:
+        storageClassName: "my-azure-disk-lazy-bound"
+        resources:
+          requests:
+            storage: 100Gi
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseBucket
+metadata:
+  name: src
+  labels:
+    cluster: cb-src
+spec:
+  memoryQuota: 1024Mi
+  storageBackend: magma
+  evictionPolicy: fullEviction
+
+#apiVersion: couchbase.com/v2
+#kind: CouchbaseReplication
+#metadata:
+#  name: replicate-source-to-destination-in-remote-cluster
+#  labels:
+#    replication: from-my-cluster-to-remote-cluster 
+#spec:
+#  bucket: src
+#  remoteBucket: tgt

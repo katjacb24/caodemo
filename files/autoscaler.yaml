@@ -1,0 +1,27 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: data-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: couchbase.com/v2
+    kind: CouchbaseAutoscaler
+    name: data.cb-src
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 20
+      policies:
+      - type: Pods
+        value: 1
+        periodSeconds: 15
+    scaleDown:
+      stabilizationWindowSeconds: 20
+  minReplicas: 3
+  maxReplicas: 6
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 30
