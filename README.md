@@ -155,8 +155,25 @@ Once done, install the cluster:
 ```
 kubectl apply -f tgt_cluster.yaml
 ```
+## Moniroring
+### Logs
+It's a good idea to monitor the operator's log in a dedicated window or tab.
 
-Monitor logs window and wait until the cluster is ready.
+Get the opeator's pod name and copy it.
+```
+kubectl get pods | grep operator | grep -v admission | awk '{print $1}'
+```
+
+Open a new terminal window and start the logs moniroring:
+```
+kubectl logs <operator-pod-name> -f
+```
+### Pods
+In yet another window or tab run
+```
+watch "kubectl get pods"
+```
+You should see cluster pods being deployed, wait until all of them are ready `1/1` and `Running`.
 
 ## Source cluster: autoscale
 ### Installation
@@ -170,20 +187,6 @@ Once done, install the cluster:
 ```
 kubectl apply -f src_cluster.yaml
 ```
-
-It's a good idea to monitor the operator's log in a dedicated window or tab.
-
-Get the opeator's pod name and copy it.
-```
-kubectl get pods | grep operator | grep -v admission | awk '{print $1}'
-```
-
-Open a new terminal window and start the logs moniroring:
-```
-kubectl logs <operator-pod-name> -f
-```
-
-Wait until all the pods are ready.
 
 ### K8s port forwarding
 We do everyting on the console, but it'd be nice to actually see what's going on, right?
