@@ -76,7 +76,7 @@ spec:
 apiVersion: couchbase.com/v2
 kind: CouchbaseBucket
 metadata:
-  name: src
+  name: mydb
   labels:
     cluster: cb-src
 spec:
@@ -91,5 +91,5 @@ spec:
 #  labels:
 #    replication: from-my-cluster-to-remote-cluster 
 #spec:
-#  bucket: src
-#  remoteBucket: tgt
+#  bucket: mydb
+#  remoteBucket: mydb
