@@ -12,19 +12,6 @@ kind: CouchbaseCluster
 metadata:
   name: cb-src
 spec:
-  #xdcr:
-  #  managed: true
-  #  remoteClusters:
-  #  - name: cb-tgt
-  #    uuid: <cb-tgt cluster uuid>
-  #    hostname: couchbases://cb-tgt.default?network=default
-  #    authenticationSecret: cb-tgt-auth
-  #    tls:
-  #      secret: couchbase-server-xdcr
-  #    replications:
-  #      selector:
-  #        matchLabels:
-  #          replication: from-my-cluster-to-remote-cluster
   image: couchbase/server:7.6.5
   antiAffinity: false
   autoResourceAllocation:
@@ -83,13 +70,3 @@ spec:
   memoryQuota: 1024Mi
   storageBackend: magma
   evictionPolicy: fullEviction
-
-#apiVersion: couchbase.com/v2
-#kind: CouchbaseReplication
-#metadata:
-#  name: replicate-source-to-destination-in-remote-cluster
-#  labels:
-#    replication: from-my-cluster-to-remote-cluster 
-#spec:
-#  bucket: mydb
-#  remoteBucket: mydb
