@@ -190,18 +190,27 @@ kubectl apply -f src_cluster.yaml
 Monitor the logs for any potential issues and the pods being deployed. Wait until all the `cb-src-000x` pods are ready and running!
 
 ### XDCR Setup
-Uncomment all the related XDCR parts of the config.
+#### XDCR remote cluster reference
+First, for the XDCR remote cluster reference, we need to identify that cluster's UUID:
 
-For the XDCR setup, we need the target cluster's UUID:
 ```
 kubectl get couchbasecluster cb-tgt -o yaml | grep clusterId
 ```
 
-Copy the value and change the `uuid` value under `spec - xdcr` accordingly.
+Copy the value.
 
-Once done, re-apply the config:
+Now open the file `xdcr_reference_to_remote.yaml` and change the `uuid` value under `spec - xdcr` accordingly.
+
+Once done, we need to patch our cluster config:
 ```
-kubectl apply -f src_cluster.yaml
+kubectl patch couchbasecluster cb-src --type merge --patch-file xdcr_reference_to_remote.yaml
+```
+#### XDCR replication
+Now it's time to spin up the replication.
+
+Simply apply the replication config:
+```
+kubectl apply -f xdcr_replication.yaml
 ```
 
 ### K8s port forwarding
