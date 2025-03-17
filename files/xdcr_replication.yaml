@@ -1,0 +1,10 @@
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseReplication
+metadata:
+  name: replicate-source-to-destination-in-remote-cluster
+  labels:
+    replication: from-my-cluster-to-remote-cluster
+spec:
+  bucket: mydb
+  remoteBucket: mydb
