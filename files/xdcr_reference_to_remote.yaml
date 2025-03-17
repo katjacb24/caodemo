@@ -8,7 +8,7 @@ spec:
     managed: true
     remoteClusters:
     - name: cb-tgt
-      uuid: 1e89b62ede3b3ddd21591aa88d8b61f3
+      uuid: <remote cluster UUID>
       hostname: couchbases://cb-tgt.default?network=default
       authenticationSecret: cb-tgt-auth
       tls:
