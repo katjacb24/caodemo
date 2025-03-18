@@ -54,17 +54,18 @@ spec:
     name: data
     services:
     - data
-    volumeMounts:
-      default: couchbase
-      data:  couchbase
-  volumeClaimTemplates:
-    - metadata:
-        name: couchbase
-      spec:
-        storageClassName: "my-azure-disk-lazy-bound"
-        resources:
-          requests:
-            storage: 100Gi
+  # Uncomment if working on Azure!
+  #  volumeMounts:
+  #    default: couchbase
+  #    data:  couchbase
+  #volumeClaimTemplates:
+  #  - metadata:
+  #      name: couchbase
+  #    spec:
+  #      storageClassName: "my-azure-disk-lazy-bound"
+  #      resources:
+  #        requests:
+  #          storage: 100Gi
 ---
 apiVersion: couchbase.com/v2
 kind: CouchbaseBucket
