@@ -46,6 +46,12 @@ You can verify that all K8s nodes are up and running with
 kubectl get nodes
 ```
 
+### Azure lazy storage config
+
+```
+kubectl create -f az_storage.yaml
+```
+
 ### AWS EKS
 Choose a name for your cluster as `<K8sClusterName>`, select a `region` and run:
 ```
@@ -156,11 +162,6 @@ Verify it's up and running, the pod should be in the `Running` state.
 kubectl get pods | grep operator | grep -v admission | awk '{print $1}'
 ```
 
-### Optional Azure lazy storage config
-This will be needed only if you use AKS.
-```
-kubectl create -f az_storage.yaml
-```
 ## Target cluster
 ### Installation
 Please open and review the `tgt_cluster.yaml` file.
