@@ -47,10 +47,10 @@ spec:
     name: data
     services:
     - data
-    volumeMounts:
-      default: couchbase
-      data:  couchbase
   # Unomment this part if working on Azure!
+    #volumeMounts:
+    #  default: couchbase
+    #  data:  couchbase
   #volumeClaimTemplates:
   #  - metadata:
   #      name: couchbase
