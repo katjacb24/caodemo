@@ -69,6 +69,8 @@ You can verify that all K8s nodes are up and running with
 ```
 kubectl get nodes
 ```
+### Local Kubernetes Cluster
+Either install [Rancher Desktop](https://rancherdesktop.io/) or [minikube](https://minikube.sigs.k8s.io/docs/)
 
 ## Encryption setup
 ### Installing and configuring EasyRSA
