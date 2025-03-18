@@ -25,7 +25,6 @@ spec:
     runAsUser: 1000
     runAsGroup: 1000
     fsGroup: 1000
-  platform: azure
   cluster:
     clusterName: SourceCluster
     dataServiceMemoryQuota: 2Gi
