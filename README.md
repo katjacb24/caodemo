@@ -16,11 +16,12 @@ Here's what you need:
 * A Kubernetes cluster of your choice
 
 ## Installing and configuring Kubernetes Cluster
-This part is up to you, in this guide I'm using Microsoft AKS. 
+### Azure AKS
+Uncomment the Azure related part in both `src_cluster.yaml` and `tgt_cluster.yaml`.
 
-`<ResourceGroupName>` needs to be created upfront.
+Create a `<ResourceGroupName>` of your choice.
 
-`<K8sClusterName` is the K8s cluster name.
+Select a `<K8sClusterName`.
 
 `<NodeCount>>` should be >=3.
 
@@ -34,17 +35,34 @@ az aks create \
 --enable-addons monitoring \
 --generate-ssh-keys
 ```
-It'll take some time, go grab a coffee.
-Then, we'll need to set the K8s config with 
+
+Update the K8s config: 
 ```
 az aks get-credentials --resource-group <ResourceGroupName> --name <K8sClusterName>
 ```
+
 You can verify that all K8s nodes are up and running with 
 ```
 kubectl get nodes
 ```
 
-Ready!
+### AWS EKS
+Choose a name for your cluster as `<K8sClusterName>`, select a `region` and run:
+```
+eksctl create cluster \
+--name <K8sClusterName> \
+--region <region> \
+--fargate
+```
+Update the K8s config:
+```
+aws eks update-kubeconfig --name <K8sClusterName> --region <region>
+```
+
+You can verify that all K8s nodes are up and running with 
+```
+kubectl get nodes
+```
 
 ## Encryption setup
 ### Installing and configuring EasyRSA
@@ -263,9 +281,31 @@ After short period of time the HPA will scale in.
 ## Optional cleanup
 Please remove all the not needed instances and clusters on the cloud!
 
-I'm going to delete my AKS cluster:
+### Azure AKS
 ```
 az aks delete --name <K8sClusterName> --resource-group <ResourceGroupName>
 ```
 
-Have fun!
+### AWS EKS
+Find your Fargate stack:
+```
+aws eks list-fargate-profiles --cluster-name <K8sClusterName> --region <region>
+```
+and delete it:
+```
+aws eks delete-fargate-profile --cluster-name <K8sClusterName> --fargate-profile-name <FARGATE_PROFILE_NAME> --region <region>
+```
+
+Find your Cloudformation stack:
+```
+aws cloudformation list-stacks --region <region>
+```
+and delete it:
+```
+aws cloudformation delete-stack --stack-name <STACK_NAME> --region <region>
+```
+
+Finally, delete your EKS cluster:
+```
+eksctl delete cluster --name <K8sClusterName> --region <region>
+```
