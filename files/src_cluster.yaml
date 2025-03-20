@@ -41,6 +41,9 @@ spec:
       storageMode: plasma
   buckets:
     managed: true
+    selector:
+      matchLabels:
+        cluster: cb-src
   servers:
   - size: 3
     autoscaleEnabled: true
