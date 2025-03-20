@@ -48,6 +48,9 @@ spec:
       storageMode: plasma
   buckets:
     managed: true
+    selector:
+      matchLabels:
+        cluster: cb-tgt
   servers:
   - size: 3
     autoscaleEnabled: true
