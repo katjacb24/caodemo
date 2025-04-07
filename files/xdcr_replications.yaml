@@ -1,0 +1,21 @@
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseReplication
+metadata:
+  name: replicate-src-to-tgt
+  labels:
+    replication: from-src-to-tgt
+spec:
+  bucket: dbsrc
+  remoteBucket: dbtgt
+
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseReplication
+metadata:
+  name: replicate-tgt-to-src
+  labels:
+    replication: from-tgt-to-src
+spec:
+  bucket: dbtgt
+  remoteBucket: dbsrc
