@@ -1,4 +1,4 @@
-# A demo configuration for Couchbase Autonomous Operator, including XDCR, autoscaling and encryption
+# A demo configuration for Couchbase Autonomous Operator, including bi-directional XDCR, autoscaling and encryption
 ## Introduction and prerequisites
 This document describes how to setup two Couchbase Clusters with autoscaling and encrypted XDCR, using Couchbase Autonomous Operator.
 
@@ -171,6 +171,12 @@ kubectl get pods | grep operator | grep -v admission | awk '{print $1}'
 ```
 
 ## Creating Couchbase Clusters
+### Creating admin secrets
+Open `admin_secrets.yaml` file and change the passwords. Save the file and apply:
+```
+kubectl apply -f admin_secrets.yaml
+```
+
 ### Installation
 Please open and review the `cluster.yaml` file.
 
