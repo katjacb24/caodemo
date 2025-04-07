@@ -186,7 +186,7 @@ Change the password (encode a password with base64) and optionally change the se
 
 Once done, install the cluster:
 ```
-kubectl apply -f cluster.yaml
+kubectl apply -f clusters.yaml
 ```
 ## Moniroring
 ### Logs
