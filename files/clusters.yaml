@@ -1,0 +1,119 @@
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseCluster
+metadata:
+  name: cb-src
+spec:
+  networking:
+    tls:
+      rootCAs:
+        - couchbase-server-ca
+      secretSource:
+        serverSecretName: src-server-tls
+        clientSecretName: client-tls
+  image: couchbase/server:7.6.5
+  antiAffinity: false
+  autoResourceAllocation:
+    cpuLimits: 1
+    cpuRequests: 1
+    enabled: true
+    overheadPercent: 25
+  security:
+    adminSecret: cb-src-auth
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  cluster:
+    clusterName: cb-src
+    dataServiceMemoryQuota: 1Gi
+    autoFailoverTimeout: 120s
+    autoFailoverMaxCount: 3
+    autoFailoverOnDataDiskIssues: true
+    autoFailoverOnDataDiskIssuesTimePeriod: 120s
+    autoFailoverServerGroup: false
+    indexer:
+      storageMode: plasma
+  buckets:
+    managed: true
+    selector:
+      matchLabels:
+        cluster: cb-src
+  servers:
+  - size: 3
+    autoscaleEnabled: true
+    name: data
+    services:
+    - data
+  # Unomment this part if working on Azure!
+    #volumeMounts:
+    #  default: couchbase
+    #  data:  couchbase
+  #volumeClaimTemplates:
+  #  - metadata:
+  #      name: couchbase
+  #    spec:
+  #      storageClassName: "my-azure-disk-lazy-bound"
+  #      resources:
+  #        requests:
+  #          storage: 100Gi
+
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseCluster
+metadata:
+  name: cb-tgt
+spec:
+  networking:
+    tls:
+      rootCAs:
+        - couchbase-server-ca
+      secretSource:
+        serverSecretName: tgt-server-tls
+        clientSecretName: client-tls
+  image: couchbase/server:7.6.5
+  antiAffinity: false
+  autoResourceAllocation:
+    cpuLimits: 1
+    cpuRequests: 1
+    enabled: true
+    overheadPercent: 25
+  security:
+    adminSecret: cb-tgt-auth
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  cluster:
+    clusterName: cb-tgt
+    dataServiceMemoryQuota: 1Gi
+    autoFailoverTimeout: 120s
+    autoFailoverMaxCount: 3
+    autoFailoverOnDataDiskIssues: true
+    autoFailoverOnDataDiskIssuesTimePeriod: 120s
+    autoFailoverServerGroup: false
+    indexer:
+      storageMode: plasma
+  buckets:
+    managed: true
+    selector:
+      matchLabels:
+        cluster: cb-tgt
+  servers:
+  - size: 3
+    autoscaleEnabled: true
+    name: data
+    services:
+    - data
+  # Uncomment if working on Azure!
+  #  volumeMounts:
+  #    default: couchbase
+  #    data:  couchbase
+  #volumeClaimTemplates:
+  #  - metadata:
+  #      name: couchbase
+  #    spec:
+  #      storageClassName: "my-azure-disk-lazy-bound"
+  #      resources:
+  #        requests:
+  #          storage: 100Gi
