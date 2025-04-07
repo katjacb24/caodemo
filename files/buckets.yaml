@@ -1,0 +1,21 @@
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseBucket
+metadata:
+  name: dbsrc
+  labels:
+    cluster: cb-src
+spec:
+  memoryQuota: 512Mi
+  evictionPolicy: fullEviction
+
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseBucket
+metadata:
+  name: dbtgt
+  labels:
+    cluster: cb-tgt
+spec:
+  memoryQuota: 512Mi
+  evictionPolicy: fullEviction
