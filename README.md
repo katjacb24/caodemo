@@ -119,7 +119,7 @@ kubectl create secret tls src-server-tls --cert pki/issued/couchbase-server-src.
 ### Create server certificate for the target cluster
 Let's create our target's server certificate. Rememeber, the cluster name is going to be `cb-tgt` in the `default` name space.
 ```
-./easyrsa --subject-alt-name='DNS:*.cb-tgt,DNS:*.cb-tgt.default,DNS:*.cb-tgt.default.svc,DNS:*.cb-tgt.default.svc.cluster.local,DNS:cb-tgt-srv,DNS:cb-tgt-srv.default,DNS:cb-tgt-srv.default.svc,DNS:*.cb-tgt-srv.default.svc.cluster.local,DNS:localhost' build-server-full couchbase-server nopass
+./easyrsa --subject-alt-name='DNS:*.cb-tgt,DNS:*.cb-tgt.default,DNS:*.cb-tgt.default.svc,DNS:*.cb-tgt.default.svc.cluster.local,DNS:cb-tgt-srv,DNS:cb-tgt-srv.default,DNS:cb-tgt-srv.default.svc,DNS:*.cb-tgt-srv.default.svc.cluster.local,DNS:localhost' build-server-full couchbase-server-tgt nopass
 ```
 
 Now, let's create the K8s secret for that:
