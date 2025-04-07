@@ -74,7 +74,7 @@ Either install [Rancher Desktop](https://rancherdesktop.io/) or [minikube](https
 
 ## Encryption setup
 ### Installing and configuring EasyRSA
-As `cb-src` is going to use an encrypted connection to `cb-tgt`, we'll need to setup TLS first.
+As `cb-src` is going to use an encrypted connection to `cb-tgt` and back, we'll need to setup TLS first.
 
 Download EasyRSA:
 ```
@@ -97,40 +97,46 @@ We'll need to decrypt the key in order to create K8s secrets:
 openssl rsa -in pki/private/ca.key -out pki/private/un_ca.key
 ```
 
-### Create server certificate
+Let's create K8s secrets containing the server and the client CA:
+```
+kubectl create secret tls couchbase-server-ca --cert pki/ca.crt --key pki/private/un_ca.key
+```
+```
+kubectl create secret generic couchbase-server-xdcr --from-file=ca=pki/ca.crt
+```
+
+### Create server certificate for the source cluster
+Let's create our target's server certificate. Rememeber, the cluster name is going to be `cb-src` in the `default` name space.
+```
+./easyrsa --subject-alt-name='DNS:*.cb-src,DNS:*.cb-src.default,DNS:*.cb-src.default.svc,DNS:*.cb-src.default.svc.cluster.local,DNS:cb-src-srv,DNS:cb-src-srv.default,DNS:cb-src-srv.default.svc,DNS:*.cb-src-srv.default.svc.cluster.local,DNS:localhost' build-server-full couchbase-server-src nopass
+```
+
+Now, let's create the K8s secret for that:
+```
+kubectl create secret tls src-server-tls --cert pki/issued/couchbase-server-src.crt --key pki/private/couchbase-server-src.key
+```
+
+### Create server certificate for the target cluster
 Let's create our target's server certificate. Rememeber, the cluster name is going to be `cb-tgt` in the `default` name space.
 ```
 ./easyrsa --subject-alt-name='DNS:*.cb-tgt,DNS:*.cb-tgt.default,DNS:*.cb-tgt.default.svc,DNS:*.cb-tgt.default.svc.cluster.local,DNS:cb-tgt-srv,DNS:cb-tgt-srv.default,DNS:cb-tgt-srv.default.svc,DNS:*.cb-tgt-srv.default.svc.cluster.local,DNS:localhost' build-server-full couchbase-server nopass
 ```
-Expected are two files, the cerificate `pki/private/couchbase-server.key` and the key `pki/issued/couchbase-server.crt`.
+
+Now, let's create the K8s secret for that:
+```
+kubectl create secret tls tgt-server-tls --cert pki/issued/couchbase-server-tgt.crt --key pki/private/couchbase-server-tgt.key
+```
 
 ### Create client certificate
 Now we need to create a client certificate for our `Administrator` user:
 ```
 ./easyrsa build-client-full Administrator nopass
 ```
-Expected result is the certificate `pki/private/Administrator.key` and the key `pki/issued/Administrator.crt`
 
-### Create K8s secrets
-We'll need several of them.
-### Create a server CA secret
+According TLS secret:
 ```
-kubectl create secret tls couchbase-server-ca --cert pki/ca.crt --key pki/private/un_ca.key
-```
+kubectl create secret generic client-tls --from-file pki/issued/Administrator.crt --from-file pki/private/Administrator.key
 
-### Create a client CA secret
-```
-kubectl create secret generic couchbase-server-xdcr --from-file=ca=pki/ca.crt
-```
-
-### Create a server TLS secret
-```
-kubectl create secret tls couchbase-server-tls --cert pki/issued/couchbase-server.crt --key pki/private/couchbase-server.key
-```
-
-### Create an operator TLS secret
-```
-kubectl create secret generic couchbase-operator-tls --from-file pki/issued/Administrator.crt --from-file pki/private/Administrator.key
 ```
 
 ## Install and configure CAO
@@ -164,17 +170,17 @@ Verify it's up and running, the pod should be in the `Running` state.
 kubectl get pods | grep operator | grep -v admission | awk '{print $1}'
 ```
 
-## Target cluster
+## Creating Couchbase Clusters
 ### Installation
-Please open and review the `tgt_cluster.yaml` file.
+Please open and review the `cluster.yaml` file.
 
 The part with the `volumeClaimTemplates` is describing AKS related setup, please feel free to change accordingly.
 
-Change the password (look for a default in the cluster config shipped within the CAO package) and optionally change the server size settings.
+Change the password (encode a password with base64) and optionally change the server size settings.
 
 Once done, install the cluster:
 ```
-kubectl apply -f tgt_cluster.yaml
+kubectl apply -f cluster.yaml
 ```
 ## Moniroring
 ### Logs
@@ -196,23 +202,19 @@ watch "kubectl get pods"
 ```
 You should see cluster pods being deployed, wait until all of them are ready `1/1` and `Running`.
 
-## Source cluster
+## Buckets
 ### Installation
-Please open and review `src_cluster.yaml`.
+Please open and review `buckets.yaml`.
 
-The part with the `volumeClaimTemplates` is describing AKS related setup, please feel free to change accordingly.
-
-Change the password (look for a default in the cluster config shipped within the CAO package) and optionally change the server size settings.
-
-Install the cluster:
+Install the buckets:
 ```
-kubectl apply -f src_cluster.yaml
+kubectl apply -f buckets.yaml
 ```
-Monitor the logs for any potential issues and the pods being deployed. Wait until all the `cb-src-000x` pods are ready and running!
+Monitor the logs for any potential issues and the pods being deployed.
 
 ### XDCR Setup
-#### XDCR remote cluster reference
-First, for the XDCR remote cluster reference, we need to identify that cluster's UUID:
+#### XDCR target cluster reference
+First, for the XDCR target cluster reference, we need to identify that cluster's UUID:
 
 ```
 kubectl get couchbasecluster cb-tgt -o yaml | grep clusterId
@@ -220,18 +222,34 @@ kubectl get couchbasecluster cb-tgt -o yaml | grep clusterId
 
 Copy the value.
 
-Now open the file `xdcr_reference_to_remote.yaml` and change the `uuid` value under `spec - xdcr` accordingly.
+Now open the file `xdcr_ref_src.yaml` and change the `uuid` value under `spec - xdcr` accordingly.
 
 Once done, we need to patch our cluster config:
 ```
-kubectl patch couchbasecluster cb-src --type merge --patch-file xdcr_reference_to_remote.yaml
+kubectl patch couchbasecluster cb-src --type merge --patch-file xdcr_ref_src.yaml
 ```
-#### XDCR replication
-Now it's time to spin up the replication.
 
-Simply apply the replication config:
+#### XDCR source cluster reference
+First, for the XDCR source cluster reference, we need to identify that cluster's UUID:
+
 ```
-kubectl apply -f xdcr_replication.yaml
+kubectl get couchbasecluster cb-src -o yaml | grep clusterId
+```
+
+Copy the value.
+
+Now open the file `xdcr_ref_tgt.yaml` and change the `uuid` value under `spec - xdcr` accordingly.
+
+Once done, we need to patch our cluster config:
+```
+kubectl patch couchbasecluster cb-tgt --type merge --patch-file xdcr_ref_tgt.yaml
+```
+
+#### XDCR replication
+Now it's time to spin up the replications.
+Review `xdcr_replications.yaml` and apply the replication config:
+```
+kubectl apply -f xdcr_replications.yaml
 ```
 
 ### K8s port forwarding
@@ -242,7 +260,7 @@ Forward the UI port locally:
 kubectl port-forward cb-src-0000 8091:8091
 ```
 
-Open your web browser, point it to `http://localhost:8091` and authenticate with `Administrator` and the default password.
+Open your web browser, point it to `http://localhost:8091` and authenticate with `Administrator` and the chosen password.
 
 ### Configure autoscale
 The HPA is configured to scale out once the memory utilization is over 30%, we want the cluster to go above.
