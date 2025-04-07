@@ -1,0 +1,19 @@
+---
+apiVersion: couchbase.com/v2
+kind: CouchbaseCluster
+metadata:
+  name: cb-tgt
+spec:
+  xdcr:
+    managed: true
+    remoteClusters:
+    - name: cb-src
+      uuid: <Source cluster UUID>
+      hostname: couchbases://cb-src.default?network=default
+      authenticationSecret: cb-src-auth
+      tls:
+        secret: couchbase-server-xdcr
+      replications:
+        selector:
+          matchLabels:
+            replication: from-tgt-to-src
