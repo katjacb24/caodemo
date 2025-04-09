@@ -70,7 +70,20 @@ You can verify that all K8s nodes are up and running with
 kubectl get nodes
 ```
 ### Local Kubernetes Cluster
-Either install [Rancher Desktop](https://rancherdesktop.io/) or [minikube](https://minikube.sigs.k8s.io/docs/)
+You need a Docker runtime. I'd suggest the following:
+```
+brew install colima
+brew install docker
+```
+Once installed, we'll need to change the config and allow at least 10 cores and 12 GB of RAM.
+```
+colima start --edit
+```
+Then, install [k3d](https://k3d.io/).
+
+OR
+
+Install [Rancher Desktop](https://rancherdesktop.io/) (but needs a lot of CPU).
 
 ## Encryption setup
 ### Installing and configuring EasyRSA
