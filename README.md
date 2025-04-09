@@ -79,7 +79,10 @@ Once installed, we'll need to change the config and allow at least 10 cores and 
 ```
 colima start --edit
 ```
-Then, install [k3d](https://k3d.io/).
+Then, install [k3d](https://k3d.io/):
+```
+brew install k3d
+```
 
 OR
 
