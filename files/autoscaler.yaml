@@ -19,9 +19,15 @@ spec:
   minReplicas: 3
   maxReplicas: 6
   metrics:
+  #- type: Resource
+  #  resource:
+  #    name: memory
+  #    target:
+  #      type: Utilization
+  #      averageUtilization: 30
   - type: Resource
     resource:
-      name: memory
+      name: cpu
       target:
         type: Utilization
         averageUtilization: 30
