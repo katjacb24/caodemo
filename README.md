@@ -70,18 +70,18 @@ You can verify that all K8s nodes are up and running with
 kubectl get nodes
 ```
 ### Local Kubernetes Cluster
-You need a Docker runtime. I'd suggest the following:
+You need a Docker runtime. On a Mac I'd suggest the following:
 ```
 brew install colima
-brew install docker
 ```
 Once installed, we'll need to change the config and allow at least 10 cores and 12 GB of RAM.
 ```
-colima start --edit
+colima start --cpu 10 --memory 12 --network-address --kubernetes
 ```
-Then, install [k3d](https://k3d.io/):
+Then, install [k3d](https://k3d.io/) and create a cluster:
 ```
 brew install k3d
+k3d cluster create <clusterName>
 ```
 
 OR
